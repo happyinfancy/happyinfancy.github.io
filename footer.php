@@ -53,7 +53,7 @@
         const querySnapshot = await getDocs(collection(db, "journey"));
         querySnapshot.forEach((doc) => {
             var station_row = `<tr id="${doc.id}">
-                                    <td>${doc.data().departure}</td>
+                                    <td>${doc.data().departure_at}</td>
                                     <td>${doc.data().departure_station_name}</td>
                                     <td>${doc.data().return_at}</td>
                                     <td>${doc.data().return_station_name}</td>
@@ -80,7 +80,7 @@
             success_notify('Station created successfully');
             console.log("Document written with ID: ", docRef.id);
         } catch (e) {
-            console.error('Error adding station');
+            console.error('Error adding station',e);
         }
         unblock_button();
     }
@@ -181,8 +181,67 @@
             }
         })
     });
+
     /**********************END- STATION FUNCTIONS**************************/
 
+    /**********************JOURNEY FUNCTIONS**************************/
+
+    async function journey_save(data) {
+        block_button();
+        try {
+            const docRef = await addDoc(collection(db, "journey"), {
+                departure_station_name: data.departure_station_name,
+                departure_station_id: data.departure_station_id,
+                return_station_name: data.return_station_name,
+                return_station_id: data.return_station_id,
+                departure_at: data.departure_at,
+                return_at: data.return_at,
+                distance: data.distance,
+                duration: data.duration,
+
+            });
+            success_notify('Station created successfully');
+            console.log("Document written with ID: ", docRef.id);
+        } catch (e) {
+            console.error('Error adding station',e);
+        }
+        unblock_button();
+    }
+
+
+    async function departure_return_dropdown() {
+        var station_row = '';
+        const querySnapshot = await getDocs(collection(db, "station"));
+        querySnapshot.forEach((doc) => {
+            station_row += `<option data-station-id="${doc.id}" value="${doc.data().station_name}">${doc.data().station_name}</option>`;
+        });
+        $('#departure_station').append(station_row);
+        $('#return_station').append(station_row);
+    }
+
+    $('.journey-save-btn').click(function () {
+        if (is_empty($('#distance').val())) {
+            Lobibox.notify('error', {
+                size: 'mini',
+                sound: false,
+                msg: 'Distance is required'
+            });
+            return false;
+        }
+        var data = {
+            departure_station_name: $('#departure_station').val(),
+            departure_station_id: $('#departure_station').find(':selected').attr('data-station-id'),
+            return_station_name: $('#return_station').val(),
+            return_station_id: $('#return_station').find(':selected').attr('data-station-id'),
+            departure_at: $('#departure_at').val(),
+            return_at: $('#return_at').val(),
+            distance: $('#distance').val(),
+            duration: $('#duration').val(),
+        };
+        journey_save(data);
+    });
+
+    /**********************END- JOURNEY FUNCTIONS**************************/
 
     $(document).ready(function () {
         var filename = window.location.pathname.split('/').pop();
@@ -192,7 +251,10 @@
             const station_id = new URLSearchParams(window.location.search).get('station_id');
             station_get_by_id(station_id);
         } else if (filename == 'journey_list.php') {
-            journeys_list();
+          //  journeys_list();
+            departure_return_dropdown();
+        } else if (filename == 'journey_create.php') {
+            departure_return_dropdown();
         }
     });
 

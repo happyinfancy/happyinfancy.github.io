@@ -13,6 +13,20 @@ include('header.php');
                 </div>
             </div>
             <div class="panel-body">
+                <div class="row" style="margin-bottom: 10px">
+                    <div class="col-md-3">
+                        <label for="station_address">Departure From:</label>
+                        <select id="departure_station" class="form-control"></select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="station_address">Return To:</label>
+                        <select id="return_station" class="form-control"></select>
+                    </div>
+                    <div class="col-md-1">
+                        <br/>
+                        <button class="btn btn-primary btn-info search-journeys">Search</button>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-md-12">
                         <table class="table table-bordered" id="journeys-list-table">
