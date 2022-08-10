@@ -6,10 +6,10 @@ include('header.php');
         <div class="panel panel-default">
             <div class="panel-heading">
                 <div>
-                    <h4>Stations List</h4>
+                    <h4>Journeys List</h4>
                 </div>
                 <div>
-                    <a href="station_create.php" class="btn btn-primary">Create Station</a>
+                    <a href="journey_create.php" class="btn btn-primary">Create Journey</a>
                 </div>
             </div>
             <div class="panel-body">
@@ -24,7 +24,8 @@ include('header.php');
                     </div>
                     <div class="col-md-1">
                         <br/>
-                        <button class="btn btn-primary btn-info search-journeys">Search</button>
+                        <button class="btn btn-primary btn-info submit-btn journey-search-btn">Search <span
+                                    class="fa fa-spinner fa-spin"></span></button>
                     </div>
                 </div>
                 <div class="row">

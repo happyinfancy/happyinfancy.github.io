@@ -19,14 +19,13 @@
     // Your web app's Firebase configuration
     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
     const firebaseConfig = {
-        apiKey: "AIzaSyDvPBRBKSWFeybRgUJFP_AFiNJJf_P1Bbg",
-        authDomain: "happyinfancy-d91d3.firebaseapp.com",
-        databaseURL: "https://happyinfancy-d91d3-default-rtdb.firebaseio.com",
-        projectId: "happyinfancy-d91d3",
-        storageBucket: "happyinfancy-d91d3.appspot.com",
-        messagingSenderId: "115440004026",
-        appId: "1:115440004026:web:f7765320053e268289cb83",
-        measurementId: "G-LJXDKTW8T2"
+        apiKey: "AIzaSyAzqTlIP2v-wyeWuhwg9xw7sUdHdJgt17w",
+        authDomain: "happyinfancy2.firebaseapp.com",
+        projectId: "happyinfancy2",
+        storageBucket: "happyinfancy2.appspot.com",
+        messagingSenderId: "645727238430",
+        appId: "1:645727238430:web:477e97f38f19e68a6e710f",
+        measurementId: "G-1PPSVYY4VE"
     };
 
     // Initialize Firebase
@@ -42,32 +41,12 @@
         getDocs,
         getDoc,
         updateDoc,
-        deleteDoc
+        deleteDoc,
+        query,
+        where
     } from "https://www.gstatic.com/firebasejs/9.9.2/firebase-firestore.js";
 
     const db = getFirestore();
-
-    /********************JOURNEYS FUNCTIONS*********************/
-
-    async function journeys_list() {
-        const querySnapshot = await getDocs(collection(db, "journey"));
-        querySnapshot.forEach((doc) => {
-            var station_row = `<tr id="${doc.id}">
-                                    <td>${doc.data().departure_at}</td>
-                                    <td>${doc.data().departure_station_name}</td>
-                                    <td>${doc.data().return_at}</td>
-                                    <td>${doc.data().return_station_name}</td>
-                                    <td>${doc.data().distance}</td>
-                                    <td>${doc.data().duration}</td>
-                                    <td>
-                                        <a href="station_edit.php?station_id=${doc.id}" class="btn btn-info">Edit</a>
-                                         <span class="btn btn-danger delete-btn" data-station-id="${doc.id}">Delete</span>
-                                    </td>
-                                  </tr>`;
-            $('#journeys-list').append(station_row);
-        });
-        $('#journeys-list-table').DataTable();
-    }
 
     /**********************STATION FUNCTIONS**************************/
     async function station_save(data) {
@@ -80,7 +59,7 @@
             success_notify('Station created successfully');
             console.log("Document written with ID: ", docRef.id);
         } catch (e) {
-            console.error('Error adding station',e);
+            console.error('Error adding station', e);
         }
         unblock_button();
     }
@@ -186,6 +165,42 @@
 
     /**********************JOURNEY FUNCTIONS**************************/
 
+    async function journeys_list() {
+        block_button();
+        $('#journeys-list').html('');
+        // $('#journeys-list-table').DataTable().clear();
+
+
+        const departure_station = $('#departure_station').find(':selected').attr('data-station-id');
+        const return_station = $('#return_station').find(':selected').attr('data-station-id');
+        console.log(departure_station, return_station)
+        const q = query(
+            collection(db, "journey"),
+            where("departure_station_id", "==", departure_station),
+            where("return_station_id", "==", return_station),
+        );
+
+
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+            var station_row = `<tr id="${doc.id}">
+                                    <td>${doc.data().departure_at}</td>
+                                    <td>${doc.data().departure_station_name}</td>
+                                    <td>${doc.data().return_at}</td>
+                                    <td>${doc.data().return_station_name}</td>
+                                    <td>${doc.data().distance}</td>
+                                    <td>${doc.data().duration}</td>
+                                    <td>
+                                        <a href="journey_edit.php?journey_id=${doc.id}" class="btn btn-info">Edit</a>
+                                         <span class="btn btn-danger delete-journey-btn" data-station-id="${doc.id}">Delete</span>
+                                    </td>
+                                  </tr>`;
+            $('#journeys-list').append(station_row);
+        });
+        $('#journeys-list-table').DataTable();
+        unblock_button();
+    }
+
     async function journey_save(data) {
         block_button();
         try {
@@ -203,11 +218,10 @@
             success_notify('Station created successfully');
             console.log("Document written with ID: ", docRef.id);
         } catch (e) {
-            console.error('Error adding station',e);
+            console.error('Error adding station', e);
         }
         unblock_button();
     }
-
 
     async function departure_return_dropdown() {
         var station_row = '';
@@ -241,6 +255,90 @@
         journey_save(data);
     });
 
+    async function delete_journey_by_id(journey_id) {
+        await deleteDoc(doc(db, 'journey', journey_id));
+        $(`#${journey_id}`).remove();
+        success_notify('Journey deleted successfully');
+    }
+
+    $(document).on('click', '.delete-journey-btn', function () {
+        var station_id = $(this).attr('data-station-id');
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                delete_journey_by_id(station_id);
+            }
+        })
+    });
+
+    async function journey_get_by_id(journey_id) {
+        const docRef = doc(db, "journey", journey_id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            $('#distance').val(docSnap.data().distance);
+            $('#duration').val(docSnap.data().duration);
+            $('#departure_at').val(docSnap.data().departure_at);
+            $('#return_at').val(docSnap.data().return_at);
+            $('#journey_id').val(docSnap.id);
+            $("#departure_station option[data-station-id='" + docSnap.data().departure_station_id + "']").prop("selected", true);
+            $("#return_station option[data-station-id='" + docSnap.data().return_station_id + "']").prop("selected", true);
+
+        } else {
+            error_notify('No such station exists');
+        }
+    }
+
+    $('.journey-update-btn').click(function () {
+        if (is_empty($('#distance').val())) {
+            error_notify('Distance is required');
+            return false;
+        }
+        var data = {
+            departure_station_name: $('#departure_station').val(),
+            departure_station_id: $('#departure_station').find(':selected').attr('data-station-id'),
+            return_station_name: $('#return_station').val(),
+            return_station_id: $('#return_station').find(':selected').attr('data-station-id'),
+            departure_at: $('#departure_at').val(),
+            return_at: $('#return_at').val(),
+            distance: $('#distance').val(),
+            duration: $('#duration').val(),
+            journey_id: $('#journey_id').val(),
+        };
+        journey_update(data)
+    });
+
+    async function journey_update(data) {
+        console.log(data);
+        block_button();
+        try {
+            const docRef = doc(db, 'journey', data.journey_id);
+            await updateDoc(docRef, {
+                departure_station_name: data.departure_station_name,
+                departure_station_id: data.departure_station_id,
+                return_station_name: data.return_station_name,
+                return_station_id: data.return_station_id,
+                departure_at: data.departure_at,
+                return_at: data.return_at,
+                distance: data.distance,
+                duration: data.duration,
+
+            });
+            success_notify('Journey updated successfully');
+        } catch (e) {
+            error_notify('Error updating journey');
+        }
+
+        unblock_button()
+    }
+
     /**********************END- JOURNEY FUNCTIONS**************************/
 
     $(document).ready(function () {
@@ -251,13 +349,20 @@
             const station_id = new URLSearchParams(window.location.search).get('station_id');
             station_get_by_id(station_id);
         } else if (filename == 'journey_list.php') {
-          //  journeys_list();
             departure_return_dropdown();
         } else if (filename == 'journey_create.php') {
             departure_return_dropdown();
+        } else if (filename == 'journey_edit.php') {
+            departure_return_dropdown();
+            const journey_id = new URLSearchParams(window.location.search).get('journey_id');
+            journey_get_by_id(journey_id);
         }
     });
 
+
+    $('.journey-search-btn').click(function () {
+        journeys_list();
+    });
 </script>
 <script>
     function is_empty(val) {

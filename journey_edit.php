@@ -5,7 +5,7 @@ include('header.php');
     <div class="col-lg-12">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h4>Create Journey</h4>
+                <h4>Edit Journey</h4>
                 <div>
                     <a href="journey_list.php" class="btn btn-primary">Journeys List</a>
                 </div>
@@ -53,8 +53,9 @@ include('header.php');
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary submit-btn journey-save-btn">Submit <span
-                            class="fa fa-spin fa-spinner"></span></button>
+                <input type="hidden" id="journey_id" value="">
+                <button type="submit" class="btn btn-primary submit-btn journey-update-btn">Submit <span
+                        class="fa fa-spin fa-spinner"></span></button>
             </div>
         </div>
     </div>

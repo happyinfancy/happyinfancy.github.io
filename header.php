@@ -67,6 +67,29 @@
     </div>
     <!-- /.container -->
 </nav>
-
+<style>
+    .node-link{
+        margin-right: 5px;
+    }
+    .node-link-row{
+        margin-bottom: 20px;
+    }
+</style>
 <!-- Content -->
 <div class="container" style="margin-top: 40px;">
+    <div class="row node-link-row">
+        <div class="col-6" style="display: flex;justify-content: center">
+            <div class="col-2 node-link">
+                <a href="station_create.php" class="btn btn-info"> <span class="fa fa-plus-square"></span> Create Station</a>
+            </div>
+            <div class="col-2 node-link">
+                <a href="station_list.php" class="btn btn-info"> <span class="fa fa-list-alt"></span> Stations List</a>
+            </div>
+            <div class="col-2 node-link">
+                <a href="journey_create.php" class="btn btn-success"> <span class="fa fa-plus-square"></span> Create Journey</a>
+            </div>
+            <div class="col-2 node-link">
+                <a href="journey_list.php" class="btn btn-success"> <span class="fa fa-list-alt"></span> Journeys List</a>
+            </div>
+        </div><!--End of col-6-->
+    </div>
